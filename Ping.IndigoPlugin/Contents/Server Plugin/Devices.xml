@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<Devices>
+     <Device type="sensor" id="pingdevice">
+        <Name>Host</Name>
+        <ConfigUI>
+            <SupportURL></SupportURL>
+            <Field id="address" type="textfield">
+                <Label>Host IP Address:</Label>
+                <Description>Enter the IP address of this device</Description>
+            </Field>
+            <Field id="pingInterval" type="textfield" defaultValue="300">
+                <Label>Ping Interval (seconds):</Label>
+                <Description>Ping Interval</Description>
+            </Field>            
+        </ConfigUI>        
+    </Device>   
+</Devices>

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<PluginConfig>
+    <Field id="space1" type="label">
+           <Label/>
+    </Field>
+    <Field type="checkbox" id="debugEnabled" defaultValue="false">
+		<Label>Enable debugging:</Label>
+		<Description>(not recommended)</Description>
+	</Field>
+    <Field id="space2" type="label">
+        <Label/>
+    </Field>
+</PluginConfig>
