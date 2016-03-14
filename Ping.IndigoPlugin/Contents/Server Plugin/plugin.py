@@ -56,6 +56,7 @@ class Plugin(indigo.PluginBase):
     def startup(self):
         self.loadPluginPrefs()
         self.debugLog(u"startup called")
+        self.updater.checkForUpdate() 
 
     def shutdown(self):
         self.debugLog(u"shutdown called")
