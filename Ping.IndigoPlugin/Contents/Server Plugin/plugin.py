@@ -16,7 +16,7 @@ class Plugin(indigo.PluginBase):
 
     def __init__(self, pluginId, pluginDisplayName, pluginVersion, pluginPrefs):
         indigo.PluginBase.__init__(self, pluginId, pluginDisplayName, pluginVersion, pluginPrefs)
-        self.updater = GitHubPluginUpdater('tenallero', 'Indigo-UniPi', self)
+        self.updater = GitHubPluginUpdater(self)
             
         self.apiVersion    = "2.0"
         self.localAddress  = ""
