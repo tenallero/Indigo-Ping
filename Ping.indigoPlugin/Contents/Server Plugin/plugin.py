@@ -39,20 +39,26 @@ class Plugin(indigo.PluginBase):
     def deviceStopComm(self,device):
         if device.id in self.deviceList:
             self.debugLog("Stoping device: " + device.name)
-            del self.deviceList[device.id]
+            self.deleteDeviceFromList(device)
 
     def deviceCreated(self, device):
         self.debugLog(u'Created device "' + device.name)
         pass
 
-    def addDeviceToList(self,device):        
-        if device.id not in self.deviceList:    
-            propsAddress = device.pluginProps["address"]                    
-            propsAddress = propsAddress.strip() 
-            propsAddress = propsAddress.replace (' ','')
-            pingNextTime = datetime.datetime.now() - datetime.timedelta(seconds=10)
-            pingInterval = device.pluginProps["pingInterval"]
-            self.deviceList[device.id] = {'ref':device, 'address':propsAddress, 'pingInterval':pingInterval, 'pingNextTime': pingNextTime}       
+    def addDeviceToList(self,device): 
+        if device:       
+            if device.id not in self.deviceList:    
+                propsAddress = device.pluginProps["address"]                    
+                propsAddress = propsAddress.strip() 
+                propsAddress = propsAddress.replace (' ','')
+                pingNextTime = datetime.datetime.now() - datetime.timedelta(seconds=10)
+                pingInterval = device.pluginProps["pingInterval"]
+                self.deviceList[device.id] = {'ref':device, 'address':propsAddress, 'pingInterval':pingInterval, 'pingNextTime': pingNextTime}       
+
+    def deleteDeviceFromList(self, device):
+        if device:
+            if device.id in self.deviceList:
+                del self.deviceList[device.id] 
 
     def startup(self):
         self.loadPluginPrefs()
@@ -101,7 +107,8 @@ class Plugin(indigo.PluginBase):
     def closedDeviceConfigUi(self, valuesDict, userCancelled, typeId, devId):
         if userCancelled is False:
             indigo.server.log ("Device preferences were updated.")
-            del self.deviceList[devId]
+            device = indigo.devices[devId]
+            self.deleteDeviceFromList(device)            
             self.addDeviceToList (device)
 
     def closedPrefsConfigUi ( self, valuesDict, UserCancelled):
