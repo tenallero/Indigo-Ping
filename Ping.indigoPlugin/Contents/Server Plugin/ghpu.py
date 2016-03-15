@@ -18,7 +18,6 @@ import shutil
 import json
 import httplib
 import plistlib
-import indigo
 
 import ConfigParser
 
@@ -27,11 +26,15 @@ from StringIO import StringIO
 from zipfile import ZipFile
 from collections import namedtuple
 
+PluginInfo = namedtuple('PluginInfo', ['id', 'name', 'version'])
+
 ################################################################################
 class GitHubPluginUpdater(object):
 
     #---------------------------------------------------------------------------
     def __init__(self, plugin=None, configFile='ghpu.cfg'):
+        self.plugin = plugin
+
         config = ConfigParser.RawConfigParser()
         config.read(configFile)
 
@@ -44,8 +47,6 @@ class GitHubPluginUpdater(object):
             self.path = ''
 
         # TODO error checking on configuration
-
-        self.plugin = plugin
 
     #---------------------------------------------------------------------------
     # install the latest version of the plugin represented by this updater
@@ -187,11 +188,9 @@ class GitHubPluginUpdater(object):
     #---------------------------------------------------------------------------
     # reads plugin info from the given pList
     def _buildPluginInfo(self, plist):
-        pid = plist.get('CFBundleIdentifier', None),
-        pname = pluginName = plist.get('CFBundleDisplayName', None),
+        pid = plist.get('CFBundleIdentifier', None)
+        pname = pluginName = plist.get('CFBundleDisplayName', None)
         pver = pluginVersion = plist.get('PluginVersion', None)
-
-        PluginInfo = namedtuple('PluginInfo', 'id name version')
 
         return PluginInfo(id=pid, name=pname, version=pver)
 
@@ -228,13 +227,14 @@ class GitHubPluginUpdater(object):
         self._debug('Verifying plugin info: %s' % pInfo.id)
 
         if (pInfo.id == None):
-            raise Exception('Unable to detect pluginId')
+            raise Exception('ID missing in source')
         elif (pInfo.name == None):
-            raise Exception('Unable to detect pluginName')
+            raise Exception('Name missing in source')
         elif (pInfo.version == None):
-            raise Exception('Unable to detect pluginVersion')
+            raise Exception('Version missing in soruce')
+
         elif (self.plugin and (self.plugin.pluginId != pInfo.id)):
-            raise Exception('ID mismatch: %s' % self.plugin.pluginId)
+            raise Exception('ID mismatch: %s' % pInfo.id)
 
         self._debug('Verified plugin: %s' % pInfo.name)
 
@@ -324,9 +324,10 @@ class GitHubPluginUpdater(object):
     #---------------------------------------------------------------------------
     # convenience method for log messages
     def _log(self, msg):
-        if self.plugin:
+        # FIXME - this is a nasty hack, can't we pass the log call to a plugin method like debug and error?
+        try:
             indigo.server.log(msg)
-        else:
+        except:
             print msg
 
     #---------------------------------------------------------------------------
@@ -334,24 +335,37 @@ class GitHubPluginUpdater(object):
     def _debug(self, msg):
         if self.plugin:
             self.plugin.debugLog(msg)
-        else:
-            print '[DEBUG] %s' % msg
 
     #---------------------------------------------------------------------------
     # convenience method for error messages
     def _error(self, msg):
         if self.plugin:
             self.plugin.errorLog(msg)
-        else:
-            print '[ERROR] %s' % msg
 
 ################################################################################
 # maps the standard version string as a tuple for comparrison
 def ver(vstr): return tuple(map(int, (vstr.split('.'))))
 
 ################################################################################
+## stub plugin class for testing
+class TestPluginStub(object):
+
+    #---------------------------------------------------------------------------
+    def __init__(self, version='0'):
+        self.pluginId = 'com.heddings.indigo.ghpu'
+        self.pluginName = 'Plugin Stub'
+        self.pluginVersion = version
+
+    #---------------------------------------------------------------------------
+    # expected logging methods
+    def log(self, msg): print '%s' % msg
+    def debugLog(self, msg): print '[DEBUG] %s' % msg
+    def errorLog(self, msg): print '[ERROR] %s' % msg
+
+################################################################################
 ## TEST ENTRY
 if __name__ == "__main__":
-    updater = GitHubPluginUpdater()
-    updater.update('0.0.0')
+    plugin = TestPluginStub()
 
+    updater = GitHubPluginUpdater(plugin=plugin)
+    updater.update()
