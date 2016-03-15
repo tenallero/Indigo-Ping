@@ -139,24 +139,19 @@ class GitHubPluginUpdater(object):
 
         data = None
 
-        try:
-            conn = httplib.HTTPSConnection('api.github.com')
-            conn.request('GET', requestPath, None, headers)
+        conn = httplib.HTTPSConnection('api.github.com')
+        conn.request('GET', requestPath, None, headers)
 
-            resp = conn.getresponse()
-            self._debug('HTTP %d %s' % (resp.status, resp.reason))
+        resp = conn.getresponse()
+        self._debug('HTTP %d %s' % (resp.status, resp.reason))
 
-            if (resp.status == 200):
-                data = json.loads(resp.read())
-            elif (400 <= resp.status < 500):
-                error = json.loads(resp.read())
-                self._error('Client Error: %s' % error['message'])
-            else:
-                self._error('Unhandled Error: %s' % resp.reason)
-
-        except Exception as e:
-            self._error('Unhandled Exception: %s' % str(e))
-            return None
+        if (resp.status == 200):
+            data = json.loads(resp.read())
+        elif (400 <= resp.status < 500):
+            error = json.loads(resp.read())
+            self._error('%s' % error['message'])
+        else:
+            self._error('Error: %s' % resp.reason)
 
         return data
 
@@ -257,7 +252,9 @@ class GitHubPluginUpdater(object):
         # this is where the repo files will end up after extraction
         repoBaseDir = os.path.join(tmpdir, repotag)
         self._debug('Destination directory: %s' % repoBaseDir)
-        if (os.path.exists(repoBaseDir)): shutil.rmtree(repoBaseDir)
+
+        if (os.path.exists(repoBaseDir)):
+            shutil.rmtree(repoBaseDir)
 
         # this is where the plugin will be after extracting
         newPluginPath = os.path.join(repoBaseDir, self.path)
@@ -276,9 +273,6 @@ class GitHubPluginUpdater(object):
             raise Exception('Failed to extract plugin')
 
         self._installPlugin(newPluginPath)
-
-        # all clear...  time to clean up
-        if (os.path.exists(repoBaseDir)): shutil.rmtree(repoBaseDir)
         self._debug('Installation complete')
 
     #---------------------------------------------------------------------------
@@ -294,7 +288,9 @@ class GitHubPluginUpdater(object):
         if (not pluginPath.endswith('.indigoPlugin')):
             stagedPluginPath = os.path.join(tmpdir, '%s.indigoPlugin' % pInfo.name)
             self._debug('Staging plugin: %s' % stagedPluginPath)
-            if (os.path.exists(stagedPluginPath)): shutil.rmtree(stagedPluginPath)
+
+            if (os.path.exists(stagedPluginPath)):
+                shutil.rmtree(stagedPluginPath)
 
             os.rename(pluginPath, stagedPluginPath)
             pluginPath = stagedPluginPath
@@ -369,3 +365,4 @@ if __name__ == "__main__":
 
     updater = GitHubPluginUpdater(plugin=plugin)
     updater.update()
+    
