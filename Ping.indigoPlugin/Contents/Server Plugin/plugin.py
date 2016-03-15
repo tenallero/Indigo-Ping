@@ -217,6 +217,14 @@ class Plugin(indigo.PluginBase):
             indigo.server.log ('sent "' + dev.name + '" status request')
             pass
             
+     
+    ########################################
+    # Actions Methods
+    ########################################
+    
+    def silentStatusRequest (self, pluginAction, device):
+        self.deviceRequestStatus (device)       
+        pass 
             
     ########################################
     # Menu Methods
