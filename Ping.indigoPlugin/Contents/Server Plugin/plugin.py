@@ -33,6 +33,7 @@ class Plugin(indigo.PluginBase):
 
     def deviceStartComm(self, device):
         self.debugLog(u"Started device: " + device.name)
+        device.stateListOrDisplayStateIdChanged()
         self.addDeviceToList (device)
 
     def deviceStopComm(self,device):

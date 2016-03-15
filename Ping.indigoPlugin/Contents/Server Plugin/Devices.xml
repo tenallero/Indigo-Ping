@@ -11,7 +11,8 @@
             <Field id="pingInterval" type="textfield" defaultValue="300">
                 <Label>Ping Interval (seconds):</Label>
                 <Description>Ping Interval</Description>
-            </Field>            
+            </Field>  
+            <Field type="checkbox" id="SupportsStatusRequest"       defaultValue="true" hidden="true" />          
         </ConfigUI>        
     </Device>   
 </Devices>
