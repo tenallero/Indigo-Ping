@@ -158,7 +158,7 @@ class Plugin(indigo.PluginBase):
                 except Exception,e:
                     self.errorLog (u"Error: " + str(e))
                     pass
-                self.sleep(1)
+                self.sleep(0.300)
             
 
         except self.StopThread:
@@ -175,16 +175,21 @@ class Plugin(indigo.PluginBase):
 
     ###################################################################
     # Custom Action callbacks
-    ###################################################################
+    ###################################################################   
 
+    def markForRequestStatus(self,device):
+        if device.id in self.deviceList:
+            self.deviceList[device.id]['pingNextTime'] = datetime.datetime.now() - datetime.timedelta(seconds=10)
+        
+        
     def deviceRequestStatus(self,dev):    
         newValue = self.pingDevice(dev)
         if not newValue == dev.states['onOffState']:
            dev.updateStateOnServer(key='onOffState', value=newValue)
            if newValue:
-                indigo.server.log (dev.name + u" is now up!")        
+                indigo.server.log (dev.name + u" now is up!")        
            else:
-                indigo.server.log (dev.name + u" is down!")        
+                indigo.server.log (dev.name + u" now is down!")        
            pass
   
     def pingDevice (self,device):
@@ -213,9 +218,10 @@ class Plugin(indigo.PluginBase):
        
     def actionControlSensor(self, action, dev):
         if action.sensorAction == indigo.kSensorAction.RequestStatus:
-            self.deviceRequestStatus(dev)
             indigo.server.log ('sent "' + dev.name + '" status request')
-            pass
+            self.markForRequestStatus(dev)
+            #self.deviceRequestStatus(dev)            
+  
             
      
     ########################################
@@ -223,8 +229,9 @@ class Plugin(indigo.PluginBase):
     ########################################
     
     def silentStatusRequest (self, pluginAction, device):
-        self.deviceRequestStatus (device)       
-        pass 
+        self.markForRequestStatus(dev)
+        #self.deviceRequestStatus (device)       
+        #pass 
             
     ########################################
     # Menu Methods
