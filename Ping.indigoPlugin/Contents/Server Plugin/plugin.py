@@ -229,7 +229,7 @@ class Plugin(indigo.PluginBase):
     ########################################
     
     def silentStatusRequest (self, pluginAction, device):
-        self.markForRequestStatus(dev)
+        self.markForRequestStatus(device)
         #self.deviceRequestStatus (device)       
         #pass 
             
