@@ -195,7 +195,10 @@ class Plugin(indigo.PluginBase):
     def pingDevice (self,device):
         if device.id in self.deviceList:
             pingAddress  = self.deviceList[device.id]['address']
-            return self.pingAddress(pingAddress)        
+            for x in range(0, 3):
+                if self.pingAddress(pingAddress):
+                    return True
+                sleep (0.100)      
         return False
 
     def pingAddress (self, address):
